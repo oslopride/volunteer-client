@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+      "allowSyntheticDefaultImports": true,
+        "outDir": "./dist/",
+        "sourceMap": true,
+        "strict": true,
+        "noEmit": true,
+        "noImplicitReturns": true,
+        "noImplicitAny": true,
+        "module": "es6",
+        "moduleResolution": "node",
+        "target": "esnext",
+        "jsx": "react",
+        "esModuleInterop": true
+    },
+    "include": [
+        "src"
+    ]
+}
