@@ -34,6 +34,12 @@ const Explanation = styled.p`
     color: ${(props: {hasFocus: boolean}) => props.hasFocus ? "black" : "lightgray"};
 `;
 
+const ErrorMessage = styled.em`
+    margin: 0 10px;
+    color: #c20f2a;
+    font-weight: bold;
+`;
+
 const Container = styled.div`
   display:flex;
   flex-direction:column;
@@ -46,8 +52,11 @@ const Container = styled.div`
 
 interface FormInputProps {
     type: string,
+    name: string,
     value: any,
+    hasError?: any,
     onChange?: any,
+    onBlur?: any,
     label: string,
     placeholder: string,
     explanation?: string,
@@ -59,8 +68,14 @@ export const FormInput = (props: FormInputProps) => {
 
     return (
         <Container>
-            <Label disabled={props.disabled}>{props.label}</Label>
+            <Label disabled={props.disabled}>
+                {props.label}
+                { props.hasError &&
+                    <ErrorMessage>{props.hasError}</ErrorMessage>
+                }
+            </Label>
             <Input
+                name={props.name}
                 disabled={props.disabled}
                 autoComplete="off"
                 autoCorrect="off"
@@ -69,10 +84,8 @@ export const FormInput = (props: FormInputProps) => {
                 placeholder={props.placeholder}
                 value={props.value}
                 onFocus={() => setHasFocus(true)}
-                onBlur={() => setHasFocus(false)}
-                onChange={(field: any) => {
-                    props.onChange(field.target.value);
-                }}
+                onBlur={(e) => {setHasFocus(false); props.onBlur(e)} }
+                onChange={props.onChange}
             />
             <Explanation hasFocus={hasFocus}>{props.explanation}</Explanation>
         </Container>

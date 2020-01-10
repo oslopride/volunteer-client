@@ -11,10 +11,31 @@ import {FaFistRaised, FaHandshake, FaIdCardAlt, FaMobile} from "react-icons/all"
 import ButtonGroup from "../../components/ButtonGroup";
 import FormSelect from "../../components/FormSelect";
 import AvailabilityCalendar from "../../components/AvailabilityCalendar/index";
+import {Formik} from "formik";
+import * as Yup from 'yup';
 
 const Body = styled.div`
   margin: 0 100px;
 `;
+
+const ProfileSchema = Yup.object().shape({
+    firstName: Yup.string()
+        .min(2, 'Minst to tegn')
+        .max(20, 'Maks 20 tegn')
+        .required('Må fylles ut'),
+    pronoun: Yup.string()
+        .min(2, 'Minst to tegn')
+        .max(10, 'Maks 10 tegn')
+        .required('Må fylles ut'),
+    fullName: Yup.string()
+        .min(5, 'Minst 5 tegn')
+        .max(40, 'Maks 40 tegn')
+        .required('Må fylles ut'),
+    dateOfBirth: Yup.date()
+        .min(new Date(1900, 1, 1), "Har du skrevet riktig dato?")
+        .max(new Date(2015, 1, 1), "Aldersgrense 16 år")
+        .required('Må fylles ut'),
+});
 
 const RegistrationForm = (props: any) => {
     const pageHeader =
@@ -27,7 +48,7 @@ const RegistrationForm = (props: any) => {
             body: <p>Registreringsskjema for frivillige, helårsfrivillige og samarbeidspartnere i Oslo Pride</p>
         };
 
-    const hasUser = props.user !== undefined;
+    const hasUser = true;//props.user !== undefined;
 
     return <Page header={pageHeader}>
         <Body>
@@ -36,20 +57,51 @@ const RegistrationForm = (props: any) => {
             </Step>
 
             <Step number={2} active={hasUser}>
-                <form>
-                    <FormGroup disabled={!hasUser} title="Om deg">
-                        <FormInput disabled={!hasUser} label="Fornavn" placeholder="Fornavnet du bruker"
-                                   explanation="For bruk i kommunikasjon med deg og på navneskilt"/>
-                        <FormInput disabled={!hasUser} label="Pronomen"
-                                   placeholder="F.eks. de, hen, hun, han, annet"
-                                   explanation="Pronomen du ønsker vi og andre skal bruke i kommunikasjon med deg, og ha tilgjengelig som navneskilt"/>
-                        <FormInput disabled={!hasUser} required label="Folkeregistrert navn"
-                                   placeholder="Fornavn Etternavn"
-                                   explanation="Vi trenger folkeregistrert navn av hensyn til HMS og sikkerhet"/>
-                        <FormInput disabled={!hasUser} required label="Fødelsedato" placeholder="01.01.2000"
-                                   explanation="Vi bruker din fødselsdato til alderskontroll"/>
-                    </FormGroup>
-                </form>
+                <Formik
+                    initialValues={{firstName: '', pronoun: '', fullName: '', dateOfBirth: ''}}
+                    validationSchema={ProfileSchema}
+                    onSubmit={(values, {setSubmitting}) => {
+                        setTimeout(() => {
+                            alert(JSON.stringify(values, null, 2));
+                            setSubmitting(false);
+                        }, 400);
+                    }}
+                >
+                    {({
+                          values,
+                          errors,
+                          touched,
+                          handleChange,
+                          handleBlur,
+                          handleSubmit,
+                          isSubmitting,
+                          /* and other goodies */
+                      }) => (
+                        <form>
+                            <FormGroup disabled={!hasUser} title="Om deg">
+                                <FormInput name="firstName" value={values.firstName} onChange={handleChange}
+                                           onBlur={handleBlur} disabled={!hasUser} label="Fornavn" placeholder="Fornavnet du bruker"
+                                           hasError={touched.firstName && errors.firstName}
+                                           explanation="For bruk i kommunikasjon med deg og på navneskilt"/>
+                                <FormInput name="pronoun" value={values.pronoun} onChange={handleChange}
+                                           onBlur={handleBlur} disabled={!hasUser} label="Pronomen"
+                                           placeholder="F.eks. de, hen, hun, han, annet"
+                                           hasError={touched.pronoun && errors.pronoun}
+                                           explanation="Pronomen du ønsker vi og andre skal bruke i kommunikasjon med deg, og ha tilgjengelig som navneskilt"/>
+                                <FormInput name="fullName" value={values.fullName} onChange={handleChange}
+                                           onBlur={handleBlur} disabled={!hasUser} required label="Folkeregistrert navn"
+                                           placeholder="Fornavn Etternavn"
+                                           explanation="Vi trenger folkeregistrert navn av hensyn til HMS og sikkerhet"
+                                           hasError={touched.fullName && errors.fullName}
+                                />
+                                <FormInput name="dateOfBirth" value={values.dateOfBirth} onChange={handleChange}
+                                           onBlur={handleBlur} disabled={!hasUser} required label="Fødelsedato" placeholder="01.01.2000"
+                                           type="date" hasError={touched.dateOfBirth && errors.dateOfBirth}
+                                           explanation="Vi bruker din fødselsdato til alderskontroll"/>
+                            </FormGroup>
+                        </form>
+                    )}
+                </Formik>
             </Step>
             <Step number={3} active={hasUser}>
                 <Tabs disabled={!hasUser} title="Din rolle i Oslo Pride"
@@ -69,28 +121,33 @@ const RegistrationForm = (props: any) => {
                                                      explanation="Vi trenger navn og telefonnummer på en person vi kan kontakte dersom noe skulle skje"/>
                                       </FormGroup>
                                       <FormGroup title="Praktisk informasjon">
-                                          <FormInput required label="T-skjortestørrelse" placeholder="XS / S / M / L / XL / XXL"
+                                          <FormInput required label="T-skjortestørrelse"
+                                                     placeholder="XS / S / M / L / XL / XXL"
                                                      explanation="Størrelse på uniform"/>
                                           <FormInput required label="Hanskestørrelse"
                                                      placeholder="S / M / L"
                                                      explanation="Størrelse på uniform"/>
-                                          <FormInput required label="Sertifiseringer" placeholder="Eks. Førerkort type B, EL, Førstehjelp..."
+                                          <FormInput required label="Sertifiseringer"
+                                                     placeholder="Eks. Førerkort type B, EL, Førstehjelp..."
                                                      explanation="Førerkort, kurs eller andre sertifiseringer som kan være relevant"/>
-                                          <FormInput required label="Er det vanskelig for deg å utføre fysisk tungt arbeid?"
+                                          <FormInput required
+                                                     label="Er det vanskelig for deg å utføre fysisk tungt arbeid?"
                                                      placeholder="Ja / Nei"
                                                      explanation="Vi tar hensyn til behov, og bruker denne informasjonen til å sette sammen balanserte vaktplaner"/>
                                       </FormGroup>
                                       <FormGroup title="Arbeidsønsker">
-                                          <FormInput required label="Hvor mye kan du jobbe som frivillig under festivalen?" placeholder="F.eks. 2-3 vakter"
+                                          <FormInput required
+                                                     label="Hvor mye kan du jobbe som frivillig under festivalen?"
+                                                     placeholder="F.eks. 2-3 vakter"
                                                      explanation="Vi vil lage vaktplan som passer antallet vakter du oppgir her "/>
-                                      </FormGroup>
-                                      <FormGroup>
-                                          <FormInput required label="Er det noen arenaer du er spesielt interessert i å jobbe på?"
+                                          <FormInput required
+                                                     label="Er det noen arenaer du er spesielt interessert i å jobbe på?"
                                                      placeholder="F.eks. Pride Park"
                                                      explanation="Du må regne med å få vakter over hele festivalen, men vi forsøker å imøtekomme ønsker."/>
                                       </FormGroup>
                                       <FormGroup title="Din tilgjengelighet">
-                                          <AvailabilityCalendar fromDate={new Date(2020,6,1)} toDate={new Date(2020,7,1)} />
+                                          <AvailabilityCalendar fromDate={new Date(2020, 6, 1)}
+                                                                toDate={new Date(2020, 7, 1)}/>
                                       </FormGroup>
                                   </form>
                               },
@@ -101,13 +158,13 @@ const RegistrationForm = (props: any) => {
                                   subtitle: "Jeg tilhører en av Oslo Prides samarbeidspartnere",
                                   content: <form>
                                       <FormGroup title="Partner">
-                                              <FormSelect required label="Velg organisasjonen du representerer"
-                                                         placeholder="Organisasjonsnavn"
-                                                         explanation="">
-                                                  <option>FRI OA</option>
-                                                  <option>Skeiv Ungdom</option>
-                                                  <option>Nordic Choice Hotels</option>
-                                              </FormSelect>
+                                          <FormSelect required label="Velg organisasjonen du representerer"
+                                                      placeholder="Organisasjonsnavn"
+                                                      explanation="">
+                                              <option>FRI OA</option>
+                                              <option>Skeiv Ungdom</option>
+                                              <option>Nordic Choice Hotels</option>
+                                          </FormSelect>
                                       </FormGroup>
                                       <FormGroup title="Kontaktinformasjon">
                                           <FormInput required label="Telefonnummer" placeholder="+47 123 12 123"
@@ -115,6 +172,10 @@ const RegistrationForm = (props: any) => {
                                           <FormInput required label="Kontaktinformasjon nærmeste pårørende"
                                                      placeholder="Fullt navn og telefonnummer"
                                                      explanation="Vi trenger navn og telefonnummer på en person vi kan kontakte dersom noe skulle skje"/>
+                                      </FormGroup>
+                                      <FormGroup title="Din tilgjengelighet">
+                                          <AvailabilityCalendar fromDate={new Date(2020, 6, 1)}
+                                                                toDate={new Date(2020, 7, 1)}/>
                                       </FormGroup>
                                   </form>
                               },
@@ -124,7 +185,7 @@ const RegistrationForm = (props: any) => {
                                   title: "Helårsfrivillig",
                                   subtitle: "Jeg er allerede medlem av en faggruppe i Oslo Pride",
                                   content:
-                                      <FormGroup title="Din rolle i Oslo Pride">
+                                      <FormGroup title="Kontaktinformasjon og organisasjonstilhørighet">
                                           <FormInput required label="Telefonnummer" placeholder="+47 123 12 123"
                                                      explanation="Vi trenger å kunne ringe deg eller sende deg SMS i forbindelse med vaktplanlegging og avvikling"/>
                                           <FormInput required label="Kontaktinformasjon nærmeste pårørende"
