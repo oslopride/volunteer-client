@@ -146,8 +146,8 @@ const RegistrationForm = (props: any) => {
                                                      explanation="Du må regne med å få vakter over hele festivalen, men vi forsøker å imøtekomme ønsker."/>
                                       </FormGroup>
                                       <FormGroup title="Din tilgjengelighet">
-                                          <AvailabilityCalendar fromDate={new Date(2020, 6, 1)}
-                                                                toDate={new Date(2020, 7, 1)}/>
+                                          <AvailabilityCalendar fromDate={new Date(2020, 6, 18)}
+                                                                toDate={new Date(2020, 7, 5)}/>
                                       </FormGroup>
                                   </form>
                               },
