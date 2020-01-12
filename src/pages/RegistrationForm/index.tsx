@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import styled from "styled-components";
 import Page from "../../components/Page";
 import ExtendedProfile from "../../components/ExtendedProfile";
@@ -13,6 +13,9 @@ import FormSelect from "../../components/FormSelect";
 import AvailabilityCalendar from "../../components/AvailabilityCalendar/index";
 import {Formik} from "formik";
 import * as Yup from 'yup';
+import {Simulate} from "react-dom/test-utils";
+import submit = Simulate.submit;
+import ProfileSummary from "../../components/ProfileSummary";
 
 const Body = styled.div`
   margin: 0 100px;
@@ -48,7 +51,9 @@ const RegistrationForm = (props: any) => {
             body: <p>Registreringsskjema for frivillige, helårsfrivillige og samarbeidspartnere i Oslo Pride</p>
         };
 
-    const hasUser = true;//props.user !== undefined;
+    const hasUser = props.user !== undefined;
+
+    const [hasProfile, setHasProfile] = useState(false);
 
     return <Page header={pageHeader}>
         <Body>
@@ -56,55 +61,64 @@ const RegistrationForm = (props: any) => {
                 <ExtendedProfile user={props.user}/>
             </Step>
 
-            <Step number={2} active={hasUser}>
-                <Formik
-                    initialValues={{firstName: '', pronoun: '', fullName: '', dateOfBirth: ''}}
-                    validationSchema={ProfileSchema}
-                    onSubmit={(values, {setSubmitting}) => {
-                        setTimeout(() => {
-                            alert(JSON.stringify(values, null, 2));
-                            setSubmitting(false);
-                        }, 400);
-                    }}
-                >
-                    {({
-                          values,
-                          errors,
-                          touched,
-                          handleChange,
-                          handleBlur,
-                          handleSubmit,
-                          isSubmitting,
-                          /* and other goodies */
-                      }) => (
-                        <form>
-                            <FormGroup disabled={!hasUser} title="Om deg">
-                                <FormInput name="firstName" value={values.firstName} onChange={handleChange}
-                                           onBlur={handleBlur} disabled={!hasUser} label="Fornavn" placeholder="Fornavnet du bruker"
-                                           hasError={touched.firstName && errors.firstName}
-                                           explanation="For bruk i kommunikasjon med deg og på navneskilt"/>
-                                <FormInput name="pronoun" value={values.pronoun} onChange={handleChange}
-                                           onBlur={handleBlur} disabled={!hasUser} label="Pronomen"
-                                           placeholder="F.eks. de, hen, hun, han, annet"
-                                           hasError={touched.pronoun && errors.pronoun}
-                                           explanation="Pronomen du ønsker vi og andre skal bruke i kommunikasjon med deg, og ha tilgjengelig som navneskilt"/>
-                                <FormInput name="fullName" value={values.fullName} onChange={handleChange}
-                                           onBlur={handleBlur} disabled={!hasUser} required label="Folkeregistrert navn"
-                                           placeholder="Fornavn Etternavn"
-                                           explanation="Vi trenger folkeregistrert navn av hensyn til HMS og sikkerhet"
-                                           hasError={touched.fullName && errors.fullName}
-                                />
-                                <FormInput name="dateOfBirth" value={values.dateOfBirth} onChange={handleChange}
-                                           onBlur={handleBlur} disabled={!hasUser} required label="Fødelsedato" placeholder="01.01.2000"
-                                           type="date" hasError={touched.dateOfBirth && errors.dateOfBirth}
-                                           explanation="Vi bruker din fødselsdato til alderskontroll"/>
-                            </FormGroup>
-                        </form>
-                    )}
-                </Formik>
+            <Step number={2} active={hasUser && !hasProfile} completed={hasProfile}>
+                {hasProfile ?
+                    <ProfileSummary image="" name="Christian" page="34" email="email@email.com" emailVerified={true}
+                                    phone="" phoneVerified={false}/> :
+                    <Formik
+                        initialValues={{firstName: '', pronoun: '', fullName: '', dateOfBirth: ''}}
+                        validationSchema={ProfileSchema}
+                        onSubmit={(values, {setSubmitting}) => {
+                            setTimeout(() => {
+                                setSubmitting(false);
+                                setHasProfile(true);
+                            }, 400);
+                        }}
+                    >
+                        {({
+                              values,
+                              errors,
+                              touched,
+                              handleChange,
+                              handleBlur,
+                              handleSubmit,
+                              isSubmitting,
+                              /* and other goodies */
+                          }) => (
+                            <form onSubmit={handleSubmit}>
+                                <FormGroup disabled={!hasUser || isSubmitting} title="Om deg">
+                                    <FormInput name="firstName" value={values.firstName} onChange={handleChange}
+                                               onBlur={handleBlur} disabled={!hasUser} label="Fornavn"
+                                               placeholder="Fornavnet du bruker"
+                                               hasError={touched.firstName && errors.firstName}
+                                               explanation="For bruk i kommunikasjon med deg og på navneskilt"/>
+                                    <FormInput name="pronoun" value={values.pronoun} onChange={handleChange}
+                                               onBlur={handleBlur} disabled={!hasUser} label="Pronomen"
+                                               placeholder="F.eks. de, hen, hun, han, annet"
+                                               hasError={touched.pronoun && errors.pronoun}
+                                               explanation="Pronomen du ønsker vi og andre skal bruke i kommunikasjon med deg, og ha tilgjengelig som navneskilt"/>
+                                    <FormInput name="fullName" value={values.fullName} onChange={handleChange}
+                                               onBlur={handleBlur} disabled={!hasUser} required
+                                               label="Folkeregistrert navn"
+                                               placeholder="Fornavn Etternavn"
+                                               explanation="Vi trenger folkeregistrert navn av hensyn til HMS og sikkerhet"
+                                               hasError={touched.fullName && errors.fullName}
+                                    />
+                                    <FormInput name="dateOfBirth" value={values.dateOfBirth} onChange={handleChange}
+                                               onBlur={handleBlur} disabled={!hasUser} required label="Fødelsedato"
+                                               placeholder="01.01.2000"
+                                               type="date" hasError={touched.dateOfBirth && errors.dateOfBirth}
+                                               explanation="Vi bruker din fødselsdato til alderskontroll"/>
+                                </FormGroup>
+                                { hasUser && !hasProfile &&
+                                    <Button type="submit" disabled={isSubmitting}>Lagre profil</Button>
+                                }
+                            </form>
+                        )}
+                    </Formik>}
             </Step>
-            <Step number={3} active={hasUser}>
-                <Tabs disabled={!hasUser} title="Din rolle i Oslo Pride"
+            <Step number={3} active={hasProfile}>
+                <Tabs disabled={!hasProfile} title="Din rolle i Oslo Pride"
                       tabs={
                           [
                               {
@@ -174,8 +188,8 @@ const RegistrationForm = (props: any) => {
                                                      explanation="Vi trenger navn og telefonnummer på en person vi kan kontakte dersom noe skulle skje"/>
                                       </FormGroup>
                                       <FormGroup title="Din tilgjengelighet">
-                                          <AvailabilityCalendar fromDate={new Date(2020, 6, 1)}
-                                                                toDate={new Date(2020, 7, 1)}/>
+                                          <AvailabilityCalendar fromDate={new Date(2020, 6, 18)}
+                                                                toDate={new Date(2020, 7, 5)}/>
                                       </FormGroup>
                                   </form>
                               },
@@ -204,9 +218,11 @@ const RegistrationForm = (props: any) => {
                 />
             </Step>
 
+            {hasProfile &&
             <ButtonGroup>
                 <Button>Send inn søknad</Button>
             </ButtonGroup>
+            }
 
         </Body>
     </Page>;

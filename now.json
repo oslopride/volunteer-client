@@ -2,18 +2,33 @@
   "name": "volunteer-client",
   "scope": "oslopride",
   "version": 2,
-  "builds": [{ "src": "package.json", "use": "@now/static-build" }],
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@now/static-build"
+    }
+  ],
   "build": {
-	  "env": {
-		  "AUTH0_CLIENT_ID": "@volunteer-client-auth0-client-id",
-		  "AUTH0_DOMAIN": "@volunteer-client-auth0-domain",
-		  "AUTH0_AUDIENCE": "@volunteer-client-auth0-audience",
-		  "AUTH0_REDIRECT_URL": "@volunteer-client-auth0-redirect-url",
-		  "AUTH0_LOGOUT_URL": "@volunteer-client-auth0-logout-url",
-		  "SANITY_PROJECT_ID": "@volunteer-client-sanity-project-id",
-		  "SANITY_DATASET": "@volunteer-client-sanity-dataset",
-		  "SANITY_USE_CDN": "true"
-	 }
+    "env": {
+      "AUTH0_CLIENT_ID": "@volunteer-client-auth0-client-id",
+      "AUTH0_DOMAIN": "@volunteer-client-auth0-domain",
+      "AUTH0_AUDIENCE": "@volunteer-client-auth0-audience",
+      "AUTH0_REDIRECT_URL": "@volunteer-client-auth0-redirect-url",
+      "AUTH0_LOGOUT_URL": "@volunteer-client-auth0-logout-url",
+      "SANITY_PROJECT_ID": "@volunteer-client-sanity-project-id",
+      "SANITY_DATASET": "@volunteer-client-sanity-dataset",
+      "SANITY_USE_CDN": "true"
+    }
   },
+  "rewrites": [
+    {
+      "source": "/signup",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/callback",
+      "destination": "/index.html"
+    }
+  ],
   "public": false
 }

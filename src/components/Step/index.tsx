@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import {FaCheck} from "react-icons/all";
+import {FaCheck} from "react-icons/fa";
 
 const Container = styled.div`
   display: flex;
